@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风格2: Notion 温暖</title>
+<style>
+:root {
+  --good: #2ea043;
+  --bad: #cf222e;
+  --fg: #37352f;
+  --fg2: #9b9a97;
+  --bg: #ffffff;
+  --bg2: #f7f6f3;
+  --border: #e9e9e7;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Serif SC',Georgia,'Times New Roman',serif; background:var(--bg2); color:var(--fg); line-height:1.6; }
+.wrap { max-width:680px; margin:0 auto; padding:24px; }
+
+/* 头部 */
+.head { padding:40px 0 28px; border-bottom:1px solid var(--border); margin-bottom:28px; }
+.head h1 { font-size:40px; font-weight:700; letter-spacing:-0.01em; }
+.head p { color:var(--fg2); font-size:16px; margin-top:8px; font-style:italic; }
+
+/* 统计 */
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px; }
+.s-card { background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:16px; text-align:center; position:relative; }
+.s-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.s-card.g::before { background:var(--good); }
+.s-card.b::before { background:var(--bad); }
+.s-user { font-size:12px; color:var(--fg2); margin-bottom:8px; font-family:sans-serif; }
+.s-num { font-size:32px; font-weight:700; margin-bottom:4px; }
+.s-card.g .s-num { color:var(--good); }
+.s-card.b .s-num { color:var(--bad); }
+.s-lbl { font-size:14px; color:var(--fg2); }
+
+/* 按钮 */
+.btns { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }
+.btn { padding:14px 20px; border:1px solid var(--border); border-radius:4px; font-size:16px; font-weight:500; cursor:pointer; transition:all .15s; font-family:inherit; }
+.btn:hover { transform:translateY(-1px); }
+.btn-g { background:var(--bg); color:var(--good); border-color:var(--good); }
+.btn-g:hover { background:#e6f9f0; }
+.btn-b { background:var(--bg); color:var(--bad); border-color:var(--bad); }
+.btn-b:hover { background:#fde8e8; }
+
+/* 列表区 */
+.list-area { background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:24px; }
+.tabs { display:flex; gap:0; margin-bottom:20px; }
+.tab { padding:8px 16px; border:none; background:none; font-size:15px; color:var(--fg2); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; font-family:inherit; }
+.tab.on { color:var(--fg); border-bottom-color:var(--fg); }
+
+/* 事件 */
+.evt { display:flex; align-items:flex-start; gap:12px; padding:14px 0; border-bottom:1px solid var(--border); }
+.evt:last-child { border-bottom:none; }
+.evt-icon { width:28px; height:28px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-top:2px; }
+.evt.g .evt-icon { background:#dafbe1; color:var(--good); }
+.evt.b .evt-icon { background:#ffebe9; color:var(--bad); }
+.evt-body { flex:1; }
+.evt-text { font-size:16px; margin-bottom:6px; line-height:1.5; }
+.evt-meta { font-size:13px; color:var(--fg2); display:flex; gap:12px; flex-wrap:wrap; font-family:sans-serif; }
+.tag { padding:2px 8px; border-radius:3px; font-size:12px; font-weight:500; }
+.tag.g { background:#dafbe1; color:var(--good); }
+.tag.b { background:#ffebe9; color:var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>好事坏事记录</h1>
+    <p>记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="stats">
+    <div class="s-card g"><div class="s-user">用户 A</div><div class="s-num">12</div><div class="s-lbl">好事</div></div>
+    <div class="s-card b"><div class="s-user">用户 A</div><div class="s-num">3</div><div class="s-lbl">坏事</div></div>
+    <div class="s-card g"><div class="s-user">用户 B</div><div class="s-num">8</div><div class="s-lbl">好事</div></div>
+    <div class="s-card b"><div class="s-user">用户 B</div><div class="s-num">5</div><div class="s-lbl">坏事</div></div>
+  </div>
+
+  <div class="btns">
+    <button class="btn btn-g">+ 记录好事</button>
+    <button class="btn btn-b">+ 记录坏事</button>
+  </div>
+
+  <div class="list-area">
+    <div class="tabs">
+      <button class="tab on">历史记录</button>
+      <button class="tab">回收站</button>
+    </div>
+    <div class="evt g">
+      <div class="evt-icon">✓</div>
+      <div class="evt-body">
+        <div class="evt-text">今天收到了一份意外的礼物</div>
+        <div class="evt-meta">
+          <span class="tag g">好事</span>
+          <span>👤 A</span>
+          <span>📌 朋友</span>
+          <span>🕐 2分钟前</span>
+        </div>
+      </div>
+    </div>
+    <div class="evt b">
+      <div class="evt-icon">✗</div>
+      <div class="evt-body">
+        <div class="evt-text">项目延期了一周</div>
+        <div class="evt-meta">
+          <span class="tag b">坏事</span>
+          <span>👤 B</span>
+          <span>📌 工作</span>
+          <span>🕐 1小时前</span>
+        </div>
+      </div>
+    </div>
+    <div class="evt g">
+      <div class="evt-icon">✓</div>
+      <div class="evt-body">
+        <div class="evt-text">学会了做一道新菜</div>
+        <div class="evt-meta">
+          <span class="tag g">好事</span>
+          <span>👤 B</span>
+          <span>📌 自己</span>
+          <span>🕐 昨天</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
