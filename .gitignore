@@ -6,6 +6,9 @@ node_modules/
 .env.local
 .env.*.local
 
+# Sensitive credentials (not for GitHub)
+memory/supabase-credentials.md
+
 # IDE
 .vscode/
 .idea/
