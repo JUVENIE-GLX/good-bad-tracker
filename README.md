@@ -3,6 +3,9 @@
 ## 简介
 简约清好事坏事记录网站，支持两个用户记录生活中的好事和坏事，数据实时互通。
 
+## 在线访问
+🔗 **https://juvenie-glx.github.io/good-bad-tracker/**
+
 ## 技术栈
 - **前端**: HTML, CSS, JavaScript
 - **存储**: Supabase (免费方案)
@@ -52,5 +55,5 @@ const SUPABASE_ANON_KEY = '你的anon_key';
 - [x] 实现记录功能
 - [x] 实现历史记录展示
 - [x] 实现统计功能
-- [ ] 配置 Supabase 数据库（需要用户操作）
-- [ ] 部署到 GitHub Pages（需要用户操作）
+- [x] 配置 Supabase 数据库
+- [x] 部署到 GitHub Pages
