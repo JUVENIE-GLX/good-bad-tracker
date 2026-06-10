@@ -2,6 +2,8 @@
 let currentEventType = 'good';
 let selectedUser = 'A';
 let allEvents = [];
+let currentView = 'history'; // 'history' | 'trash'
+let editingEventId = null;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,9 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupRealtimeSubscription();
 });
 
-// 打开弹窗
+// 打开弹窗（新建）
 function openModal(type) {
   currentEventType = type;
+  editingEventId = null;
   const modal = document.getElementById('modalOverlay');
   const title = document.getElementById('modalTitle');
   const submitBtn = document.getElementById('submitBtn');
@@ -19,11 +22,40 @@ function openModal(type) {
 
   title.textContent = type === 'good' ? '记录好事' : '记录坏事';
   contentInput.placeholder = type === 'good' ? '发生了什么好事？' : '发生了什么坏事？';
+  submitBtn.textContent = '确认记录';
   submitBtn.className = `btn btn-submit ${type}`;
 
   // 清空表单
   document.getElementById('eventContent').value = '';
   document.getElementById('eventObject').value = '';
+
+  modal.classList.add('active');
+}
+
+// 打开弹窗（编辑）
+function openEditModal(id) {
+  const event = allEvents.find(e => e.id === id);
+  if (!event) return;
+
+  editingEventId = id;
+  currentEventType = event.type;
+  selectedUser = event.user_id;
+
+  const modal = document.getElementById('modalOverlay');
+  const title = document.getElementById('modalTitle');
+  const submitBtn = document.getElementById('submitBtn');
+
+  title.textContent = '编辑记录';
+  document.getElementById('eventContent').value = event.content;
+  document.getElementById('eventObject').value = event.object === '无' ? '' : event.object;
+
+  // 更新用户选择按钮状态
+  document.querySelectorAll('.user-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.user === selectedUser);
+  });
+
+  submitBtn.textContent = '保存修改';
+  submitBtn.className = `btn btn-submit ${event.type}`;
 
   modal.classList.add('active');
 }
@@ -42,7 +74,7 @@ function selectUser(user) {
   });
 }
 
-// 提交事件
+// 提交事件（新建或编辑）
 async function submitEvent() {
   const content = document.getElementById('eventContent').value.trim();
   const object = document.getElementById('eventObject').value.trim();
@@ -56,17 +88,27 @@ async function submitEvent() {
     content,
     object: object || '无',
     user_id: selectedUser,
-    type: currentEventType,
-    created_at: new Date().toISOString()
+    type: currentEventType
   };
 
   try {
-    const { data, error } = await supabaseClient
-      .from(TABLE_NAME)
-      .insert([eventData])
-      .select();
+    if (editingEventId) {
+      // 编辑模式
+      const { error } = await supabaseClient
+        .from(TABLE_NAME)
+        .update(eventData)
+        .eq('id', editingEventId);
 
-    if (error) throw error;
+      if (error) throw error;
+    } else {
+      // 新建模式
+      eventData.created_at = new Date().toISOString();
+      const { error } = await supabaseClient
+        .from(TABLE_NAME)
+        .insert([eventData]);
+
+      if (error) throw error;
+    }
 
     closeModal();
     await loadEvents();
@@ -82,6 +124,7 @@ async function loadEvents() {
     const { data, error } = await supabaseClient
       .from(TABLE_NAME)
       .select('*')
+      .eq('is_deleted', false)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -93,6 +136,121 @@ async function loadEvents() {
     console.error('加载失败:', error);
     renderEvents();
     updateStats();
+  }
+}
+
+// 加载回收站
+async function loadTrash() {
+  try {
+    const { data, error } = await supabaseClient
+      .from(TABLE_NAME)
+      .select('*')
+      .eq('is_deleted', true)
+      .order('deleted_at', { ascending: false });
+
+    if (error) throw error;
+
+    renderTrash(data || []);
+  } catch (error) {
+    console.error('加载回收站失败:', error);
+    renderTrash([]);
+  }
+}
+
+// 软删除（移到回收站）
+async function deleteEvent(id) {
+  if (!confirm('确定要删除这条记录吗？\n可在回收站中恢复。')) return;
+
+  try {
+    const { error } = await supabaseClient
+      .from(TABLE_NAME)
+      .update({ is_deleted: true, deleted_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await loadEvents();
+  } catch (error) {
+    console.error('删除失败:', error);
+    alert('删除失败，请重试');
+  }
+}
+
+// 恢复事件
+async function restoreEvent(id) {
+  try {
+    const { error } = await supabaseClient
+      .from(TABLE_NAME)
+      .update({ is_deleted: false, deleted_at: null })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await loadTrash();
+  } catch (error) {
+    console.error('恢复失败:', error);
+    alert('恢复失败，请重试');
+  }
+}
+
+// 永久删除
+async function permanentDelete(id) {
+  if (!confirm('确定要永久删除吗？\n此操作不可恢复！')) return;
+
+  try {
+    const { error } = await supabaseClient
+      .from(TABLE_NAME)
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await loadTrash();
+  } catch (error) {
+    console.error('永久删除失败:', error);
+    alert('永久删除失败，请重试');
+  }
+}
+
+// 清空回收站
+async function emptyTrash() {
+  if (!confirm('确定要清空回收站吗？\n所有记录将被永久删除，此操作不可恢复！')) return;
+
+  try {
+    const { error } = await supabaseClient
+      .from(TABLE_NAME)
+      .delete()
+      .eq('is_deleted', true);
+
+    if (error) throw error;
+
+    await loadTrash();
+  } catch (error) {
+    console.error('清空失败:', error);
+    alert('清空失败，请重试');
+  }
+}
+
+// 切换视图
+function switchView(view) {
+  currentView = view;
+  const historySection = document.getElementById('historySection');
+  const trashSection = document.getElementById('trashSection');
+  const historyTab = document.getElementById('historyTab');
+  const trashTab = document.getElementById('trashTab');
+
+  if (view === 'history') {
+    historySection.style.display = 'block';
+    trashSection.style.display = 'none';
+    historyTab.classList.add('active');
+    trashTab.classList.remove('active');
+    loadEvents();
+  } else {
+    historySection.style.display = 'none';
+    trashSection.style.display = 'block';
+    historyTab.classList.remove('active');
+    trashTab.classList.add('active');
+    loadTrash();
   }
 }
 
@@ -137,6 +295,48 @@ function renderEvents() {
           <span>📌 ${escapeHtml(event.object)}</span>
           <span>🕐 ${formatTime(event.created_at)}</span>
         </div>
+      </div>
+      <div class="event-actions">
+        <button class="action-btn edit-btn" onclick="openEditModal(${event.id})" title="编辑">✏️</button>
+        <button class="action-btn delete-btn" onclick="deleteEvent(${event.id})" title="删除">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// 渲染回收站
+function renderTrash(events) {
+  const container = document.getElementById('trashList');
+
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🗑️</div>
+        <p>回收站是空的</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = events.map(event => `
+    <div class="event-item ${event.type} deleted">
+      <div class="event-icon">
+        ${event.type === 'good' ? '✓' : '✗'}
+      </div>
+      <div class="event-content">
+        <div class="event-text">${escapeHtml(event.content)}</div>
+        <div class="event-meta">
+          <span class="event-tag ${event.type}">
+            ${event.type === 'good' ? '好事' : '坏事'}
+          </span>
+          <span>👤 用户 ${event.user_id}</span>
+          <span>📌 ${escapeHtml(event.object)}</span>
+          <span>🕐 删除于 ${formatTime(event.deleted_at)}</span>
+        </div>
+      </div>
+      <div class="event-actions">
+        <button class="action-btn restore-btn" onclick="restoreEvent(${event.id})" title="恢复">↩️</button>
+        <button class="action-btn permanent-btn" onclick="permanentDelete(${event.id})" title="永久删除">❌</button>
       </div>
     </div>
   `).join('');

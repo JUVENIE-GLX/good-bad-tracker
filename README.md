@@ -16,15 +16,17 @@
 - 点击后弹出输入框记录事件
 - 历史记录列表显示：时间、内容、记录人、好事/坏事标签、对象
 - 统计面板：两个用户的好事/坏事数量（共4个统计）
+- 记录编辑：可修改已添加的记录内容
+- 删除与回收站：删除的记录可在回收站中恢复
 
 ## 核心文件
 | 文件 | 说明 |
 |------|------|
-| index.html | 主页面 |
+| index.html | 主页面（含历史记录和回收站） |
 | style.css | 样式文件 |
-| script.js | 逻辑代码 |
+| script.js | 逻辑代码（含编辑、删除、恢复功能） |
 | supabase.js | 数据库配置 |
-| SUPABASE_SETUP.md | Supabase 配置指南 |
+| SUPABASE_SETUP.md | Supabase 配置指南（含迁移脚本） |
 | DEPLOY.md | GitHub Pages 部署指南 |
 
 ## 快速开始
@@ -57,3 +59,5 @@ const SUPABASE_ANON_KEY = '你的anon_key';
 - [x] 实现统计功能
 - [x] 配置 Supabase 数据库
 - [x] 部署到 GitHub Pages
+- [x] 实现记录编辑功能
+- [x] 实现删除与回收站功能

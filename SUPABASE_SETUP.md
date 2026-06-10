@@ -29,7 +29,9 @@ CREATE TABLE events (
   object TEXT DEFAULT '无',
   user_id VARCHAR(1) NOT NULL CHECK (user_id IN ('A', 'B')),
   type VARCHAR(4) NOT NULL CHECK (type IN ('good', 'bad')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  is_deleted BOOLEAN DEFAULT FALSE,
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 -- 启用实时订阅
@@ -43,6 +45,12 @@ CREATE POLICY "允许匿名读取" ON events
 
 CREATE POLICY "允许匿名插入" ON events
   FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "允许匿名更新" ON events
+  FOR UPDATE USING (true);
+
+CREATE POLICY "允许匿名删除" ON events
+  FOR DELETE USING (true);
 ```
 
 ## 第四步：获取配置信息
@@ -65,6 +73,25 @@ const SUPABASE_ANON_KEY = '你的anon_key';
 ## 完成！
 
 现在可以在本地打开 `index.html` 测试功能了。
+
+---
+
+## 数据库迁移（已有项目）
+
+如果之前已创建过数据表，需要执行以下 SQL 添加新字段：
+
+```sql
+-- 添加软删除字段
+ALTER TABLE events ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE;
+
+-- 添加更新和删除权限
+CREATE POLICY IF NOT EXISTS "允许匿名更新" ON events
+  FOR UPDATE USING (true);
+
+CREATE POLICY IF NOT EXISTS "允许匿名删除" ON events
+  FOR DELETE USING (true);
+```
 
 ---
 
