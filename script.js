@@ -291,7 +291,7 @@ function renderEvents() {
           <span class="event-tag ${event.type}">
             ${event.type === 'good' ? '好事' : '坏事'}
           </span>
-          <span>👤 用户 ${event.user_id}</span>
+          <span>👤 ${getUserName(event.user_id)}</span>
           <span>📌 ${escapeHtml(event.object)}</span>
           <span>🕐 ${formatTime(event.created_at)}</span>
         </div>
@@ -329,7 +329,7 @@ function renderTrash(events) {
           <span class="event-tag ${event.type}">
             ${event.type === 'good' ? '好事' : '坏事'}
           </span>
-          <span>👤 用户 ${event.user_id}</span>
+          <span>👤 ${getUserName(event.user_id)}</span>
           <span>📌 ${escapeHtml(event.object)}</span>
           <span>🕐 删除于 ${formatTime(event.deleted_at)}</span>
         </div>
@@ -423,6 +423,12 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// 获取用户显示名称
+function getUserName(userId) {
+  const names = { 'A': '小管', 'B': '小叶' };
+  return names[userId] || userId;
 }
 
 // 点击弹窗外部关闭
