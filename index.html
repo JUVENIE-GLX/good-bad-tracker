@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>好事坏事记录</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <header class="header">
+      <h1>好事坏事记录</h1>
+      <p class="subtitle">记录生活中的点点滴滴</p>
+    </header>
+
+    <!-- 统计面板 -->
+    <section class="stats-panel">
+      <div class="stat-card good">
+        <div class="stat-user">用户 A</div>
+        <div class="stat-count" id="userA-good">0</div>
+        <div class="stat-label">好事</div>
+      </div>
+      <div class="stat-card bad">
+        <div class="stat-user">用户 A</div>
+        <div class="stat-count" id="userA-bad">0</div>
+        <div class="stat-label">坏事</div>
+      </div>
+      <div class="stat-card good">
+        <div class="stat-user">用户 B</div>
+        <div class="stat-count" id="userB-good">0</div>
+        <div class="stat-label">好事</div>
+      </div>
+      <div class="stat-card bad">
+        <div class="stat-user">用户 B</div>
+        <div class="stat-count" id="userB-bad">0</div>
+        <div class="stat-label">坏事</div>
+      </div>
+    </section>
+
+    <!-- 操作按钮 -->
+    <section class="action-buttons">
+      <button class="btn btn-good" onclick="openModal('good')">
+        <span class="btn-icon">+</span>
+        <span class="btn-text">记录好事</span>
+      </button>
+      <button class="btn btn-bad" onclick="openModal('bad')">
+        <span class="btn-icon">+</span>
+        <span class="btn-text">记录坏事</span>
+      </button>
+    </section>
+
+    <!-- 历史记录 -->
+    <section class="history-section">
+      <h2>历史记录</h2>
+      <div class="filter-bar">
+        <select id="userFilter" onchange="filterEvents()">
+          <option value="all">所有用户</option>
+          <option value="A">用户 A</option>
+          <option value="B">用户 B</option>
+        </select>
+        <select id="typeFilter" onchange="filterEvents()">
+          <option value="all">所有类型</option>
+          <option value="good">好事</option>
+          <option value="bad">坏事</option>
+        </select>
+      </div>
+      <div class="events-list" id="eventsList">
+        <!-- 事件列表将在这里动态生成 -->
+      </div>
+    </section>
+  </div>
+
+  <!-- 弹窗 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">记录好事</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="eventContent">事件内容</label>
+          <textarea id="eventContent" placeholder="发生了什么好事？" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="eventObject">对象</label>
+          <input type="text" id="eventObject" placeholder="关于谁/什么？">
+        </div>
+        <div class="form-group">
+          <label>记录人</label>
+          <div class="user-select">
+            <button class="user-btn active" data-user="A" onclick="selectUser('A')">用户 A</button>
+            <button class="user-btn" data-user="B" onclick="selectUser('B')">用户 B</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn btn-submit" id="submitBtn" onclick="submitEvent()">确认记录</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
