@@ -1,8 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>好事坏事记录 · UI 演示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
 /* ============================================
-   好事坏事记录 · 暖色手账风格
+   设计令牌
    ============================================ */
-
-/* 设计令牌 */
 :root {
   /* 暖色调 */
   --cream: #faf6f1;
@@ -46,12 +53,14 @@
   --radius-xl: 20px;
 }
 
-/* 重置 & 基础 */
+/* ============================================
+   重置 & 基础
+   ============================================ */
 *, *::before, *::after {
   margin: 0; padding: 0; box-sizing: border-box;
 }
 
-html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+html { font-size: 16px; }
 
 body {
   font-family: var(--font-body);
@@ -72,7 +81,9 @@ body::before {
   z-index: 9999;
 }
 
-/* 容器 */
+/* ============================================
+   容器
+   ============================================ */
 .container {
   max-width: 640px;
   margin: 0 auto;
@@ -80,7 +91,7 @@ body::before {
 }
 
 /* ============================================
-   头部
+   头部 — 手账标题
    ============================================ */
 .header {
   text-align: center;
@@ -122,7 +133,7 @@ body::before {
 }
 
 /* ============================================
-   统计面板
+   统计面板 — 手账便签风格
    ============================================ */
 .stats-panel {
   display: grid;
@@ -194,7 +205,7 @@ body::before {
 }
 
 /* ============================================
-   操作按钮
+   操作按钮 — 蜡笔质感
    ============================================ */
 .action-buttons {
   display: grid;
@@ -243,14 +254,18 @@ body::before {
   color: white;
 }
 
-.btn-good:hover { background: var(--good-dark); }
+.btn-good:hover {
+  background: var(--good-dark);
+}
 
 .btn-bad {
   background: var(--bad);
   color: white;
 }
 
-.btn-bad:hover { background: var(--bad-dark); }
+.btn-bad:hover {
+  background: var(--bad-dark);
+}
 
 .btn-icon {
   font-size: 20px;
@@ -259,17 +274,32 @@ body::before {
 }
 
 /* ============================================
-   历史记录区域
+   历史记录区域 — 日记本
    ============================================ */
 .history-section {
   background: var(--paper);
   border-radius: var(--radius-xl);
   padding: var(--space-lg);
   box-shadow: 0 2px 12px var(--shadow-warm);
+  position: relative;
   animation: fadeUp 0.6s ease 0.4s both;
 }
 
-/* 标签页 */
+/* 装饰线 */
+.history-section::before {
+  content: '';
+  position: absolute;
+  top: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 1px;
+  opacity: 0;
+}
+
+/* 标签页 — 手写风格 */
 .section-tabs {
   display: flex;
   gap: var(--space-xs);
@@ -333,36 +363,8 @@ body::before {
   border-color: var(--gold);
 }
 
-/* 回收站 */
-.trash-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-lg);
-}
-
-.trash-hint {
-  font-size: 13px;
-  color: var(--ink-muted);
-}
-
-.btn-empty-trash {
-  padding: var(--space-sm) var(--space-md);
-  font-size: 12px;
-  font-weight: 500;
-  background: transparent;
-  color: var(--bad);
-  border: 1px solid var(--bad-light);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--font-body);
-}
-
-.btn-empty-trash:hover { background: var(--bad-light); }
-
 /* ============================================
-   事件卡片
+   事件卡片 — 手账贴纸
    ============================================ */
 .events-list {
   display: flex;
@@ -455,7 +457,7 @@ body::before {
   color: var(--bad-dark);
 }
 
-/* 事件操作按钮 */
+/* 操作按钮 */
 .event-actions {
   display: flex;
   gap: 4px;
@@ -494,6 +496,38 @@ body::before {
 .event-item.deleted:hover { opacity: 0.8; }
 
 /* ============================================
+   回收站
+   ============================================ */
+.trash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.trash-hint {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.btn-empty-trash {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--bad);
+  border: 1px solid var(--bad-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.btn-empty-trash:hover {
+  background: var(--bad-light);
+}
+
+/* ============================================
    空状态
    ============================================ */
 .empty-state {
@@ -514,7 +548,7 @@ body::before {
 }
 
 /* ============================================
-   弹窗
+   弹窗 — 手账翻页感
    ============================================ */
 .modal-overlay {
   display: none;
@@ -706,3 +740,159 @@ body::before {
   .event-actions { opacity: 1; }
   .trash-header { flex-direction: column; gap: var(--space-sm); align-items: flex-start; }
 }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- 头部 -->
+  <header class="header">
+    <h1>好事坏事记录</h1>
+    <p class="subtitle">记录生活中的点点滴滴</p>
+  </header>
+
+  <!-- 统计面板 -->
+  <section class="stats-panel">
+    <div class="stat-card good">
+      <div class="stat-user">小管</div>
+      <div class="stat-count">12</div>
+      <div class="stat-label">好事</div>
+    </div>
+    <div class="stat-card bad">
+      <div class="stat-user">小管</div>
+      <div class="stat-count">3</div>
+      <div class="stat-label">坏事</div>
+    </div>
+    <div class="stat-card good">
+      <div class="stat-user">小叶</div>
+      <div class="stat-count">8</div>
+      <div class="stat-label">好事</div>
+    </div>
+    <div class="stat-card bad">
+      <div class="stat-user">小叶</div>
+      <div class="stat-count">5</div>
+      <div class="stat-label">坏事</div>
+    </div>
+  </section>
+
+  <!-- 操作按钮 -->
+  <section class="action-buttons">
+    <button class="btn btn-good">
+      <span class="btn-icon">+</span>
+      <span>记录好事</span>
+    </button>
+    <button class="btn btn-bad">
+      <span class="btn-icon">+</span>
+      <span>记录坏事</span>
+    </button>
+  </section>
+
+  <!-- 历史记录 -->
+  <section class="history-section">
+    <div class="section-tabs">
+      <button class="tab-btn active">📋 历史记录</button>
+      <button class="tab-btn">🗑️ 回收站</button>
+    </div>
+
+    <div class="filter-bar">
+      <select>
+        <option>所有人</option>
+        <option>小管</option>
+        <option>小叶</option>
+      </select>
+      <select>
+        <option>所有类型</option>
+        <option>好事</option>
+        <option>坏事</option>
+      </select>
+    </div>
+
+    <div class="events-list">
+      <div class="event-item good">
+        <div class="event-icon">✓</div>
+        <div class="event-content">
+          <div class="event-text">今天收到了一份意外的礼物</div>
+          <div class="event-meta">
+            <span class="event-tag good">好事</span>
+            <span>👤 小管</span>
+            <span>📌 朋友</span>
+            <span>🕐 2分钟前</span>
+          </div>
+        </div>
+        <div class="event-actions" style="opacity:1">
+          <button class="action-btn edit-btn">✏️</button>
+          <button class="action-btn delete-btn">🗑️</button>
+        </div>
+      </div>
+
+      <div class="event-item bad">
+        <div class="event-icon">✗</div>
+        <div class="event-content">
+          <div class="event-text">项目延期了一周，需要加班赶进度</div>
+          <div class="event-meta">
+            <span class="event-tag bad">坏事</span>
+            <span>👤 小叶</span>
+            <span>📌 工作</span>
+            <span>🕐 1小时前</span>
+          </div>
+        </div>
+        <div class="event-actions" style="opacity:1">
+          <button class="action-btn edit-btn">✏️</button>
+          <button class="action-btn delete-btn">🗑️</button>
+        </div>
+      </div>
+
+      <div class="event-item good">
+        <div class="event-icon">✓</div>
+        <div class="event-content">
+          <div class="event-text">学会了一道新菜，味道还不错</div>
+          <div class="event-meta">
+            <span class="event-tag good">好事</span>
+            <span>👤 小叶</span>
+            <span>📌 自己</span>
+            <span>🕐 昨天</span>
+          </div>
+        </div>
+        <div class="event-actions" style="opacity:1">
+          <button class="action-btn edit-btn">✏️</button>
+          <button class="action-btn delete-btn">🗑️</button>
+        </div>
+      </div>
+
+      <div class="event-item good">
+        <div class="event-icon">✓</div>
+        <div class="event-content">
+          <div class="event-text">和小管一起看了电影，很开心</div>
+          <div class="event-meta">
+            <span class="event-tag good">好事</span>
+            <span>👤 小管</span>
+            <span>📌 小叶</span>
+            <span>🕐 3天前</span>
+          </div>
+        </div>
+        <div class="event-actions" style="opacity:1">
+          <button class="action-btn edit-btn">✏️</button>
+          <button class="action-btn delete-btn">🗑️</button>
+        </div>
+      </div>
+
+      <div class="event-item bad">
+        <div class="event-icon">✗</div>
+        <div class="event-content">
+          <div class="event-text">手机屏幕碎了，修了 500 块</div>
+          <div class="event-meta">
+            <span class="event-tag bad">坏事</span>
+            <span>👤 小管</span>
+            <span>📌 自己</span>
+            <span>🕐 上周</span>
+          </div>
+        </div>
+        <div class="event-actions" style="opacity:1">
+          <button class="action-btn edit-btn">✏️</button>
+          <button class="action-btn delete-btn">🗑️</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
