@@ -1,15 +1,48 @@
+// 常量配置（唯一修改用户名的地方）
+const USER_NAMES = { A: '小管', B: '小叶' };
+const TYPE_LABELS = { good: '好事', bad: '坏事' };
+
 // 全局状态
 let currentEventType = 'good';
 let selectedUser = 'A';
 let allEvents = [];
-let currentView = 'history'; // 'history' | 'trash'
+let currentView = 'history';
 let editingEventId = null;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
+  initUserUI();
   loadEvents();
   setupRealtimeSubscription();
 });
+
+// 从 USER_NAMES 动态生成用户相关 UI
+function initUserUI() {
+  const userIds = Object.keys(USER_NAMES);
+
+  // 统计面板
+  const statsPanel = document.getElementById('statsPanel');
+  statsPanel.innerHTML = userIds.flatMap(uid =>
+    ['good', 'bad'].map(type => `
+      <div class="stat-card ${type}">
+        <div class="stat-user">${USER_NAMES[uid]}</div>
+        <div class="stat-count" id="user${uid}-${type}">0</div>
+        <div class="stat-label">${TYPE_LABELS[type]}</div>
+      </div>
+    `)
+  ).join('');
+
+  // 筛选下拉
+  const userFilter = document.getElementById('userFilter');
+  userFilter.innerHTML = '<option value="all">所有人</option>' +
+    userIds.map(uid => `<option value="${uid}">${USER_NAMES[uid]}</option>`).join('');
+
+  // 弹窗用户选择
+  const userSelect = document.getElementById('userSelect');
+  userSelect.innerHTML = userIds.map((uid, i) =>
+    `<button class="user-btn${i === 0 ? ' active' : ''}" data-user="${uid}" onclick="selectUser('${uid}')">${USER_NAMES[uid]}</button>`
+  ).join('');
+}
 
 // 打开弹窗（新建）
 function openModal(type) {
@@ -20,8 +53,8 @@ function openModal(type) {
   const submitBtn = document.getElementById('submitBtn');
   const contentInput = document.getElementById('eventContent');
 
-  title.textContent = type === 'good' ? '记录好事' : '记录坏事';
-  contentInput.placeholder = type === 'good' ? '发生了什么好事？' : '发生了什么坏事？';
+  title.textContent = `记录${TYPE_LABELS[type]}`;
+  contentInput.placeholder = `发生了什么${TYPE_LABELS[type]}？`;
   submitBtn.textContent = '确认记录';
   submitBtn.className = `btn btn-submit ${type}`;
 
@@ -254,6 +287,33 @@ function switchView(view) {
   }
 }
 
+// 渲染单个事件卡片（共享逻辑）
+function renderEventCard(event, { isTrash = false } = {}) {
+  const actions = isTrash
+    ? `<button class="action-btn restore-btn" onclick="restoreEvent(${event.id})" title="恢复">↩️</button>
+       <button class="action-btn permanent-btn" onclick="permanentDelete(${event.id})" title="永久删除">❌</button>`
+    : `<button class="action-btn edit-btn" onclick="openEditModal(${event.id})" title="编辑">✏️</button>
+       <button class="action-btn delete-btn" onclick="deleteEvent(${event.id})" title="删除">🗑️</button>`;
+
+  const timeLabel = isTrash ? '删除于' : '';
+  const timeValue = isTrash ? event.deleted_at : event.created_at;
+
+  return `
+    <div class="event-item ${event.type}${isTrash ? ' deleted' : ''}">
+      <div class="event-icon">${event.type === 'good' ? '✓' : '✗'}</div>
+      <div class="event-content">
+        <div class="event-text">${escapeHtml(event.content)}</div>
+        <div class="event-meta">
+          <span class="event-tag ${event.type}">${TYPE_LABELS[event.type]}</span>
+          <span>👤 ${USER_NAMES[event.user_id] || event.user_id}</span>
+          <span>📌 ${escapeHtml(event.object)}</span>
+          <span>🕐 ${timeLabel}${formatTime(timeValue)}</span>
+        </div>
+      </div>
+      <div class="event-actions">${actions}</div>
+    </div>`;
+}
+
 // 渲染事件列表
 function renderEvents() {
   const container = document.getElementById('eventsList');
@@ -261,47 +321,15 @@ function renderEvents() {
   const typeFilter = document.getElementById('typeFilter').value;
 
   let filteredEvents = allEvents;
-
-  if (userFilter !== 'all') {
-    filteredEvents = filteredEvents.filter(e => e.user_id === userFilter);
-  }
-
-  if (typeFilter !== 'all') {
-    filteredEvents = filteredEvents.filter(e => e.type === typeFilter);
-  }
+  if (userFilter !== 'all') filteredEvents = filteredEvents.filter(e => e.user_id === userFilter);
+  if (typeFilter !== 'all') filteredEvents = filteredEvents.filter(e => e.type === typeFilter);
 
   if (filteredEvents.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📝</div>
-        <p>还没有记录，点击上方按钮开始记录吧！</p>
-      </div>
-    `;
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>还没有记录，点击上方按钮开始记录吧！</p></div>';
     return;
   }
 
-  container.innerHTML = filteredEvents.map(event => `
-    <div class="event-item ${event.type}">
-      <div class="event-icon">
-        ${event.type === 'good' ? '✓' : '✗'}
-      </div>
-      <div class="event-content">
-        <div class="event-text">${escapeHtml(event.content)}</div>
-        <div class="event-meta">
-          <span class="event-tag ${event.type}">
-            ${event.type === 'good' ? '好事' : '坏事'}
-          </span>
-          <span>👤 ${getUserName(event.user_id)}</span>
-          <span>📌 ${escapeHtml(event.object)}</span>
-          <span>🕐 ${formatTime(event.created_at)}</span>
-        </div>
-      </div>
-      <div class="event-actions">
-        <button class="action-btn edit-btn" onclick="openEditModal(${event.id})" title="编辑">✏️</button>
-        <button class="action-btn delete-btn" onclick="deleteEvent(${event.id})" title="删除">🗑️</button>
-      </div>
-    </div>
-  `).join('');
+  container.innerHTML = filteredEvents.map(e => renderEventCard(e)).join('');
 }
 
 // 渲染回收站
@@ -309,37 +337,11 @@ function renderTrash(events) {
   const container = document.getElementById('trashList');
 
   if (events.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🗑️</div>
-        <p>回收站是空的</p>
-      </div>
-    `;
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🗑️</div><p>回收站是空的</p></div>';
     return;
   }
 
-  container.innerHTML = events.map(event => `
-    <div class="event-item ${event.type} deleted">
-      <div class="event-icon">
-        ${event.type === 'good' ? '✓' : '✗'}
-      </div>
-      <div class="event-content">
-        <div class="event-text">${escapeHtml(event.content)}</div>
-        <div class="event-meta">
-          <span class="event-tag ${event.type}">
-            ${event.type === 'good' ? '好事' : '坏事'}
-          </span>
-          <span>👤 ${getUserName(event.user_id)}</span>
-          <span>📌 ${escapeHtml(event.object)}</span>
-          <span>🕐 删除于 ${formatTime(event.deleted_at)}</span>
-        </div>
-      </div>
-      <div class="event-actions">
-        <button class="action-btn restore-btn" onclick="restoreEvent(${event.id})" title="恢复">↩️</button>
-        <button class="action-btn permanent-btn" onclick="permanentDelete(${event.id})" title="永久删除">❌</button>
-      </div>
-    </div>
-  `).join('');
+  container.innerHTML = events.map(e => renderEventCard(e, { isTrash: true })).join('');
 }
 
 // 更新统计
@@ -423,12 +425,6 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
-}
-
-// 获取用户显示名称
-function getUserName(userId) {
-  const names = { 'A': '小管', 'B': '小叶' };
-  return names[userId] || userId;
 }
 
 // 点击弹窗外部关闭

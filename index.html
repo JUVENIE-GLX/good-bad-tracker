@@ -14,29 +14,8 @@
       <p class="subtitle">记录生活中的点点滴滴</p>
     </header>
 
-    <!-- 统计面板 -->
-    <section class="stats-panel">
-      <div class="stat-card good">
-        <div class="stat-user">小管</div>
-        <div class="stat-count" id="userA-good">0</div>
-        <div class="stat-label">好事</div>
-      </div>
-      <div class="stat-card bad">
-        <div class="stat-user">小管</div>
-        <div class="stat-count" id="userA-bad">0</div>
-        <div class="stat-label">坏事</div>
-      </div>
-      <div class="stat-card good">
-        <div class="stat-user">小叶</div>
-        <div class="stat-count" id="userB-good">0</div>
-        <div class="stat-label">好事</div>
-      </div>
-      <div class="stat-card bad">
-        <div class="stat-user">小叶</div>
-        <div class="stat-count" id="userB-bad">0</div>
-        <div class="stat-label">坏事</div>
-      </div>
-    </section>
+    <!-- 统计面板（由 JS 动态生成） -->
+    <section class="stats-panel" id="statsPanel"></section>
 
     <!-- 操作按钮 -->
     <section class="action-buttons">
@@ -60,11 +39,7 @@
       <!-- 历史记录视图 -->
       <div id="historySection">
         <div class="filter-bar">
-          <select id="userFilter" onchange="filterEvents()">
-            <option value="all">所有人</option>
-            <option value="A">小管</option>
-            <option value="B">小叶</option>
-          </select>
+          <select id="userFilter" onchange="filterEvents()"></select>
           <select id="typeFilter" onchange="filterEvents()">
             <option value="all">所有类型</option>
             <option value="good">好事</option>
@@ -107,10 +82,7 @@
         </div>
         <div class="form-group">
           <label>记录人</label>
-          <div class="user-select">
-            <button class="user-btn active" data-user="A" onclick="selectUser('A')">小管</button>
-            <button class="user-btn" data-user="B" onclick="selectUser('B')">小叶</button>
-          </div>
+          <div class="user-select" id="userSelect"></div>
         </div>
       </div>
       <div class="modal-footer">
